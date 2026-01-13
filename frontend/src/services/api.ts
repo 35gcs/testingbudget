@@ -107,6 +107,11 @@ export const teamsAPI = {
     const response = await api.get<Team>(`/teams/${id}`);
     return response.data;
   },
+
+  update: async (id: string, data: Partial<Omit<Team, 'id' | 'created_at' | 'current_players'>>): Promise<Team> => {
+    const response = await api.put<Team>(`/teams/${id}`, data);
+    return response.data;
+  },
 };
 
 // Budgets API

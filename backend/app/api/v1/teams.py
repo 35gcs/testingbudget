@@ -68,3 +68,32 @@ async def get_team(
             detail="Team not found"
         )
     return team
+
+@router.put("/{team_id}", response_model=TeamResponse)
+async def update_team(
+    team_id: str,
+    team_data: TeamCreate,
+    db: Session = Depends(get_db)
+):
+    """Update a team"""
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if not team:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Team not found"
+        )
+    
+    # Update team fields
+    team.name = team_data.name
+    team.age_group = team_data.age_group
+    team.sport = team_data.sport
+    team.gender = team_data.gender
+    team.max_players = team_data.max_players
+    team.registration_fee = team_data.registration_fee
+    if team_data.coach_id:
+        team.coach_id = team_data.coach_id
+    
+    db.commit()
+    db.refresh(team)
+    
+    return team

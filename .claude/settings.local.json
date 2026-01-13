@@ -12,7 +12,15 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git remote add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(source venv/bin/activate)",
+      "Bash(pip install:*)",
+      "Bash(uvicorn:*)",
+      "Bash(curl:*)",
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)"
     ]
   }
 }
