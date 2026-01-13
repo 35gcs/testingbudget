@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(python -m pip:*)",
+      "Bash(python3:*)",
+      "Bash(for file in app/api/v1/*.py)",
+      "Bash(do python3 -m py_compile \"$file\")",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
