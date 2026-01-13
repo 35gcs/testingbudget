@@ -2,14 +2,13 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Navigation from '../components/Navigation';
 import { budgetsAPI, seasonsAPI, teamsAPI } from '../services/api';
-import { Plus, DollarSign, Filter } from 'lucide-react';
+import { Plus, DollarSign } from 'lucide-react';
 import { ExpenseCategory, getExpenseCategoryLabel } from '../types';
 
 export default function Budgets() {
   const [showForm, setShowForm] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState<string>('');
   const [selectedTeam, setSelectedTeam] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [formData, setFormData] = useState({
     season_id: '',
     team_id: '',
@@ -60,11 +59,6 @@ export default function Budgets() {
 
   const expenseCategories = Object.values(ExpenseCategory);
 
-  // Filter budgets by category
-  const filteredBudgets = selectedCategory
-    ? budgets.filter((budget) => budget.category === selectedCategory)
-    : budgets;
-
   return (
     <div className="min-h-screen bg-bg-primary">
       <Navigation />
@@ -83,7 +77,7 @@ export default function Budgets() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
               Filter by Season
@@ -121,29 +115,7 @@ export default function Budgets() {
                 </option>
               ))}
             </select>
-          
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              <div className="flex items-center space-x-2">
-                <Filter className="w-4 h-4" />
-                <span>Filter by Category</span>
-              </div>
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-bg-secondary border border-white/10 text-white focus:outline-none focus:border-sports-primary"
-            >
-              <option value="">All Categories</option>
-              {expenseCategories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {getExpenseCategoryLabel(cat)}
-                </option>
-              ))}
-              <option value="total">Total Budget</option>
-            </select>
           </div>
-</div>
         </div>
 
         {showForm && (
@@ -257,7 +229,7 @@ export default function Budgets() {
         )}
 
         <div className="space-y-4">
-          {filteredBudgets.map((budget) => (
+          {budgets.map((budget) => (
             <div
               key={budget.id}
               className="bg-bg-secondary rounded-lg p-6 border border-white/10 flex items-center justify-between"
@@ -289,17 +261,11 @@ export default function Budgets() {
           ))}
         </div>
 
-        {filteredBudgets.length === 0 && (
+        {budgets.length === 0 && (
           <div className="bg-bg-secondary rounded-lg p-12 text-center border border-white/10">
             <DollarSign className="w-16 h-16 text-text-secondary mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
-              {selectedCategory ? 'No Budgets in This Category' : 'No Budgets Yet'}
-            </h3>
-            <p className="text-text-secondary">
-              {selectedCategory
-                ? 'Try selecting a different category or clear the filter'
-                : 'Create your first budget to get started'}
-            </p>
+            <h3 className="text-xl font-semibold text-white mb-2">No Budgets Yet</h3>
+            <p className="text-text-secondary">Create your first budget to get started</p>
           </div>
         )}
       </div>
