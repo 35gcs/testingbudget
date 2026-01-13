@@ -129,15 +129,17 @@ export const budgetsAPI = {
     return response.data;
   },
 
-  getSummary: async (seasonId: string): Promise<BudgetSummary> => {
-    const response = await api.get<BudgetSummary>('/budgets/summary', {
-      params: { season_id: seasonId },
-    });
+  getSummary: async (seasonId: string, category?: string): Promise<BudgetSummary> => {
+    const params: any = { season_id: seasonId };
+    if (category) params.category = category;
+    const response = await api.get<BudgetSummary>('/budgets/summary', { params });
     return response.data;
   },
 
-  getTeamSummary: async (teamId: string): Promise<TeamBudgetSummary> => {
-    const response = await api.get<TeamBudgetSummary>(`/budgets/team/${teamId}/summary`);
+  getTeamSummary: async (teamId: string, category?: string): Promise<TeamBudgetSummary> => {
+    const params: any = {};
+    if (category) params.category = category;
+    const response = await api.get<TeamBudgetSummary>(`/budgets/team/${teamId}/summary`, { params });
     return response.data;
   },
 };

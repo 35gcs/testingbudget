@@ -5,12 +5,14 @@ import HowToGuide from '../components/HowToGuide';
 import { seasonsAPI, budgetsAPI, teamsAPI } from '../services/api';
 import type { BudgetSummary, TeamBudgetSummary } from '../types';
 import { DollarSign, TrendingUp, TrendingDown, Calendar, Zap, Eye, Filter } from 'lucide-react';
+import { ExpenseCategory, getExpenseCategoryLabel } from '../types';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 
 export default function Dashboard() {
   const [selectedTeamId, setSelectedTeamId] = useState<string>('');
-  
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+
   const { data: seasons = [] } = useQuery({
     queryKey: ['seasons'],
     queryFn: seasonsAPI.getAll,
@@ -28,12 +30,18 @@ export default function Dashboard() {
   });
 
   const { data: summary } = useQuery<BudgetSummary | TeamBudgetSummary>({
-    queryKey: ['budget-summary', activeSeason?.id, selectedTeamId],
+    queryKey: ['budget-summary', activeSeason?.id, selectedTeamId, selectedCategory],
     queryFn: () => {
       if (selectedTeamId) {
-        return budgetsAPI.getTeamSummary(selectedTeamId) as Promise<TeamBudgetSummary>;
+        return budgetsAPI.getTeamSummary(
+          selectedTeamId,
+          selectedCategory || undefined
+        ) as Promise<TeamBudgetSummary>;
       }
-      return budgetsAPI.getSummary(activeSeason!.id) as Promise<BudgetSummary>;
+      return budgetsAPI.getSummary(
+        activeSeason!.id,
+        selectedCategory || undefined
+      ) as Promise<BudgetSummary>;
     },
     enabled: !!activeSeason,
   });
@@ -71,32 +79,60 @@ export default function Dashboard() {
                 </Link>
               </div>
               
-              {/* Team Filter */}
-              <div className="flex items-center space-x-4 pt-4 border-t border-white/10">
-                <div className="flex items-center space-x-2">
-                  <Filter className="w-5 h-5 text-text-secondary" />
-                  <label className="text-sm font-medium text-text-secondary">Filter by Team:</label>
-                </div>
-                <select
-                  value={selectedTeamId}
-                  onChange={(e) => setSelectedTeamId(e.target.value)}
-                  className="flex-1 max-w-xs px-4 py-2 rounded-lg bg-bg-primary border border-white/10 text-white focus:outline-none focus:border-sports-primary"
-                >
-                  <option value="">All Teams</option>
-                  {teams.map((team) => (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  ))}
-                </select>
-                {selectedTeamId && (
-                  <button
-                    onClick={() => setSelectedTeamId('')}
-                    className="px-4 py-2 text-sm text-text-secondary hover:text-white transition-colors"
+              {/* Team and Category Filters */}
+              <div className="pt-4 border-t border-white/10 space-y-4">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <Filter className="w-5 h-5 text-text-secondary" />
+                    <label className="text-sm font-medium text-text-secondary">Filter by Team:</label>
+                  </div>
+                  <select
+                    value={selectedTeamId}
+                    onChange={(e) => setSelectedTeamId(e.target.value)}
+                    className="flex-1 max-w-xs px-4 py-2 rounded-lg bg-bg-primary border border-white/10 text-white focus:outline-none focus:border-sports-primary"
                   >
-                    Clear Filter
-                  </button>
-                )}
+                    <option value="">All Teams</option>
+                    {teams.map((team) => (
+                      <option key={team.id} value={team.id}>
+                        {team.name}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedTeamId && (
+                    <button
+                      onClick={() => setSelectedTeamId('')}
+                      className="px-4 py-2 text-sm text-text-secondary hover:text-white transition-colors"
+                    >
+                      Clear Filter
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <Filter className="w-5 h-5 text-text-secondary" />
+                    <label className="text-sm font-medium text-text-secondary">Filter by Category:</label>
+                  </div>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="flex-1 max-w-xs px-4 py-2 rounded-lg bg-bg-primary border border-white/10 text-white focus:outline-none focus:border-sports-primary"
+                  >
+                    <option value="">All Categories</option>
+                    {Object.values(ExpenseCategory).map((cat) => (
+                      <option key={cat} value={cat}>
+                        {getExpenseCategoryLabel(cat)}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedCategory && (
+                    <button
+                      onClick={() => setSelectedCategory('')}
+                      className="px-4 py-2 text-sm text-text-secondary hover:text-white transition-colors"
+                    >
+                      Clear Filter
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 

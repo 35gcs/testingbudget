@@ -69,9 +69,10 @@ async def create_budget(
 @router.get("/summary", response_model=BudgetSummary)
 async def get_budget_summary(
     season_id: str = Query(...),
+    category: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
-    """Get budget summary for a season"""
+    """Get budget summary for a season, optionally filtered by category"""
     season = db.query(Season).filter(Season.id == season_id).first()
     if not season:
         raise HTTPException(
@@ -79,18 +80,27 @@ async def get_budget_summary(
             detail="Season not found"
         )
     
-    # Calculate totals
-    total_budgeted = db.query(func.sum(Budget.budgeted_amount)).filter(
+    # Calculate totals with optional category filter
+    budget_query = db.query(func.sum(Budget.budgeted_amount)).filter(
         Budget.season_id == season_id
-    ).scalar() or 0.0
+    )
+    if category:
+        budget_query = budget_query.filter(Budget.category == category)
+    total_budgeted = budget_query.scalar() or 0.0
     
-    total_expenses = db.query(func.sum(Expense.amount)).filter(
+    expense_query = db.query(func.sum(Expense.amount)).filter(
         Expense.season_id == season_id
-    ).scalar() or 0.0
+    )
+    if category:
+        expense_query = expense_query.filter(Expense.category == category)
+    total_expenses = expense_query.scalar() or 0.0
     
-    total_revenue = db.query(func.sum(Revenue.amount)).filter(
+    revenue_query = db.query(func.sum(Revenue.amount)).filter(
         Revenue.season_id == season_id
-    ).scalar() or 0.0
+    )
+    if category:
+        revenue_query = revenue_query.filter(Revenue.category == category)
+    total_revenue = revenue_query.scalar() or 0.0
     
     remaining_budget = total_budgeted - total_expenses
     profit_loss = total_revenue - total_expenses
@@ -109,9 +119,10 @@ async def get_budget_summary(
 @router.get("/team/{team_id}/summary", response_model=TeamBudgetSummary)
 async def get_team_budget_summary(
     team_id: str,
+    category: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
-    """Get budget summary for a specific team"""
+    """Get budget summary for a specific team, optionally filtered by category"""
     team = db.query(Team).filter(Team.id == team_id).first()
     if not team:
         raise HTTPException(
@@ -119,18 +130,27 @@ async def get_team_budget_summary(
             detail="Team not found"
         )
     
-    # Calculate totals
-    total_budgeted = db.query(func.sum(Budget.budgeted_amount)).filter(
+    # Calculate totals with optional category filter
+    budget_query = db.query(func.sum(Budget.budgeted_amount)).filter(
         Budget.team_id == team_id
-    ).scalar() or 0.0
+    )
+    if category:
+        budget_query = budget_query.filter(Budget.category == category)
+    total_budgeted = budget_query.scalar() or 0.0
     
-    total_expenses = db.query(func.sum(Expense.amount)).filter(
+    expense_query = db.query(func.sum(Expense.amount)).filter(
         Expense.team_id == team_id
-    ).scalar() or 0.0
+    )
+    if category:
+        expense_query = expense_query.filter(Expense.category == category)
+    total_expenses = expense_query.scalar() or 0.0
     
-    total_revenue = db.query(func.sum(Revenue.amount)).filter(
+    revenue_query = db.query(func.sum(Revenue.amount)).filter(
         Revenue.team_id == team_id
-    ).scalar() or 0.0
+    )
+    if category:
+        revenue_query = revenue_query.filter(Revenue.category == category)
+    total_revenue = revenue_query.scalar() or 0.0
     
     # Registration fees
     from app.models import Player
